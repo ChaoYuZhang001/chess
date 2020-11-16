@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: chess-auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 172.16.104.104:9611 #${chess.nacos.url}
+        namespace: local
+        group: SERVER
+      config:
+        server-addr: 172.16.104.104:9611 # ${chess.nacos.config.url} # 配置中心地址
+        namespace: chess
+        extension-configs[0]:
+          data-id: chess-common.yaml
+          group: SERVER_PUBLIC
+          refresh: true
+        extension-configs[1]:
+          data-id: chess-auth.yaml
+          group: SERVER
+          refresh: true
+        extension-configs[2]:
+          data-id: chess-auth-dsp.yaml
+          group: SERVER
+          refresh: true
+

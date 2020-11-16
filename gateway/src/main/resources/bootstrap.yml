@@ -1,0 +1,42 @@
+spring:
+  application:
+    # 应用名称
+    name: chess-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${chess.nacos.url}  #注册进nacos
+      config:
+        server-addr: ${chess.nacos.config.url}
+        namespace: chess # 开发环境
+          extension-configs[0]:
+            data-id: chess-common.yaml
+            group: SERVER_PUBLIC
+            refresh: true
+          extension-configs[1]:
+            data-id: chess-gateway.yaml
+            group: SERVER
+            refresh: true
+          extension-configs[2]:
+            data-id: chess-gateway-dsp.yaml
+            group: SERVER
+            refresh: true
+    # 使用 Sentinel 作为熔断器
+    sentinel:
+      transport:
+        port: ${chess.gateway.sentinel.port} #这个端口的意思是自己这个服务开个端口和 sentinel 控制台交互
+        dashboard: ${chess.sentinel.url} #sentinel ip端口
+    # 路由网关配置
+    gateway:
+      # 这里是设置与服务注册发现组件结合，这样可以采用服务名的路由策略
+      discovery:
+        locator:
+          enabled: true
+      # 配置路由规则
+      routes:
+        - id: ROUTER#chess-auth #这个是路由ID，需要保证在所有路由定义中唯一，值随便写就是了
+          # 采用 LoadBalanceClient 方式请求，以 lb:// 开头，后面的是注册在 Nacos 上的服务名
+          uri: lb://chess-auth
+          predicates:
+            # Method ，这里是匹配 GET 和 POST 请求
+            - Method=GET,POST
